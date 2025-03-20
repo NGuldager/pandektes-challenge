@@ -7,10 +7,18 @@ import { AppResolver } from './app.resolver';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ConfigModule } from '@nestjs/config';
 import { PublicationModule } from 'src/publication/publication.module';
+import { ApiScraperModule } from 'src/api-scraper/api-scraper.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6789,
+      },
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
@@ -20,6 +28,7 @@ import { PublicationModule } from 'src/publication/publication.module';
       plugins: [ApolloServerPluginLandingPageLocalDefault({})],
     }),
     PublicationModule,
+    ApiScraperModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver],
