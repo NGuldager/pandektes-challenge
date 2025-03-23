@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Publication {
+  id             String     @id
+  categories     String[]
+  jnr            String[]
+  title          String
+  published_date DateTime
+  date           DateTime
+  body           String     @db.Text
+  attachments    Document[] @relation("PublicationAttachments")
+  documents      Document[] @relation("PublicationDocuments")
+  links          Link[]     @relation("PublicationLinks")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Document {
+  id    String @id @default(cuid())
+  file  String @unique
+  title String
+
+  // Relations
+  publicationAttachments Publication[] @relation("PublicationAttachments")
+  publicationDocuments   Publication[] @relation("PublicationDocuments")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Link {
+  id    String @id @default(cuid())
+  title String
+  url   String
+
+  // Relations
+  publication   Publication? @relation("PublicationLinks", fields: [publicationId], references: [id])
+  publicationId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([url, publicationId], name: "link_unique")
+}
