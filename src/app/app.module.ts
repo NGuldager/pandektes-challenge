@@ -8,6 +8,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { ConfigModule } from '@nestjs/config';
 import { PublicationModule } from 'src/publication/publication.module';
 import { ApiScraperModule } from 'src/api-scraper/api-scraper.module';
+import { WebScraperModule } from 'src/web-scraper/web-scraper.module';
 import { BullModule } from '@nestjs/bull';
 
 @Module({
@@ -29,6 +30,7 @@ import { BullModule } from '@nestjs/bull';
     }),
     PublicationModule,
     ApiScraperModule,
+    WebScraperModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver],
