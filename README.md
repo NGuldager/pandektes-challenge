@@ -1,34 +1,19 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# Pandektes Challenge: Build a Case Law Web Scraper with Nestjs
 
 ## Project setup
 
 ```bash
+# Setup .env file
+$ cp .env.example .env
+
+# Install dependencies
 $ npm install
+
+# Start docker with postgres and redis
+$ docker compose up -d
+
+# Run migrations and generate prisma client
+$ npm run prisma:migrate
 ```
 
 ## Compile and run the project
@@ -44,55 +29,140 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Run tests
+## Start scraping
 
-```bash
-# unit tests
-$ npm run test
+Steps:
 
-# e2e tests
-$ npm run test:e2e
+1. Start the application
+2. Go to http://localhost:3000/graphql
+3. Run one of the following mutations:
 
-# test coverage
-$ npm run test:cov
+```graphql
+mutation startWebScrape {
+  startWebScraping(skipLimit: 100) {
+    # set skip limit to 0 disable limit
+    message
+  }
+}
+
+mutation startApiScrape {
+  startApiScraping(skipLimit: 100) {
+    # set skip limit to 0 disable limit
+    message
+  }
+}
 ```
 
-## Deployment
+## Querying
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+To fetch publications use the following query:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
+```graphql
+query publications($body: String, $pagination: PaginationInput) {
+  publications(filter: { body: { contains: $body } }, pagination: $pagination) {
+    meta {
+      hasMore
+      total
+    }
+    items {
+      id
+      categories
+      jnr
+      title
+      published_date
+      date
+      body
+      attachments {
+        file
+        title
+      }
+      documents {
+        file
+        title
+      }
+      links {
+        title
+        url
+      }
+    }
+  }
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Following fields can be used for filtering:
 
-## Resources
+- title
+- body
+- categories
+- jnr
+- published_date
 
-Check out a few resources that may come in handy when working with NestJS:
+## Project structure
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+This project is a NestJS application designed to scrape case law data using both web scraping and API scraping techniques, with a GraphQL API for data access.
 
-## Support
+### Main Structure
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- `src` - Main source code directory
+  - `main.ts` - Application entry point that bootstraps the NestJS application
+  - `app` - Main module that imports and configures all other modules
 
-## Stay in touch
+### Data Scraping Modules
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- `web-scraper` - Module for web scraping functionality
+  - Uses Puppeteer and Cheerio for web scraping
+  - Implements queue-based processing with Bull
+- `api-scraper` - Module for API-based scraping
+  - Uses HttpModule for API requests
+  - Implements queue-based processing with Bull
 
-## License
+### Data Management
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- `publication` - Module for managing publication data
+  - `publication.model.ts` - Data models for publications
+  - `publication.service.ts` - Service for CRUD operations
+  - `publication.resolver.ts` - GraphQL resolver for publications
+  - `publication.types.ts` - GraphQL type definitions
+
+### Database
+
+- `prisma` - Prisma ORM configuration
+
+## Key Decisions and notes
+
+- `API Scraping vs Web Scraping`: Ideally, API scraping would be the ideal approach if possible, as it generally allows for more complete data extraction with less complex setup. However, sometimes web scraping is the only option, and the decision was made to show how both techniques could be used for this challenge.
+  - API Scraping was initially implemented to get an overview of the data, but web scraping was added due nature of the challenge.
+- `Puppeteer and Cheerio for Web Scraping`: Puppeteer is used for browser automation, while Cheerio is used for DOM parsing.
+  - Cheerio might not be needed due to the simplicity of the web scraping task, and could be replaced with the built-in DOM parsing of Puppeteer.
+  - Puppeteer clustering was added to allow for concurrent scraping.
+    - This allows to start the processing of each individual publication while the list is still being processed.
+- `Bull for Queue-Based Processing`: Bull is used for queue-based processing, ensuring that scraping tasks are processed in a sequential manner.
+
+## Next steps for production readiness
+
+- Don't fetch relations when querying publications unless needed
+  - This could be done with a library like `dataloader`
+  - This would allow to fetch all relations in one query
+  - This would also allow to fetch relations for multiple publications in one query
+- Add authentication to the Publication GraphQL API
+- Make sure high load on scraping does not have a severe negative impact on the Publication GraphQL API
+  - Potential solutions:
+    - Separate the scraping modules from the Publication GraphQL API into completely separate services
+    - Have read replica support for the Publication GraphQL API
+- Add tests to the project
+- Add validation of input data from the API
+  - Could be done with `zod` or similar
+- Add document, attachment and link parsing to the web scraper
+- Improve error handling
+  - This could be done with a library like `neverthrow` or `effect`
+
+### Potential improvements
+
+- Extract metadata from a publication
+  - Potential fields:
+    - Legal citations in the body
+    - urls not present in the links
+- Improve search functionality
+  - Potential solutions depending on the complexity needed:
+    - Use `fuzzystrmatch` and `pg_trgm` extensions in PostgreSQL
+    - Elasticsearch or similar

@@ -11,6 +11,13 @@ import { ApiScraperModule } from 'src/api-scraper/api-scraper.module';
 import { WebScraperModule } from 'src/web-scraper/web-scraper.module';
 import { BullModule } from '@nestjs/bull';
 
+const defaultDocument = `mutation startWebScrape{
+  # set skip limit to 0 disable limit
+  startWebScraping(skipLimit: 100) {
+    message
+  }
+}`;
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -26,7 +33,11 @@ import { BullModule } from '@nestjs/bull';
       sortSchema: true,
       introspection: true,
       playground: false,
-      plugins: [ApolloServerPluginLandingPageLocalDefault({})],
+      plugins: [
+        ApolloServerPluginLandingPageLocalDefault({
+          document: defaultDocument,
+        }),
+      ],
     }),
     PublicationModule,
     ApiScraperModule,
