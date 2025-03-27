@@ -1,6 +1,11 @@
 import { Resolver, Query, Args, ID } from '@nestjs/graphql';
-import { PublicationType, PublicationFilterInput } from './publication.types';
+import {
+  PublicationType,
+  PublicationFilterInput,
+  PublicationPaginatedResponse,
+} from './publication.types';
 import { PublicationService } from './publication.service';
+import { PaginationInput } from '../common/pagination.types';
 
 @Resolver(() => PublicationType)
 export class PublicationResolver {
@@ -13,10 +18,27 @@ export class PublicationResolver {
     return this.publicationService.findOne(id);
   }
 
-  @Query(() => [PublicationType])
+  @Query(() => PublicationPaginatedResponse)
   async publications(
     @Args('filter', { nullable: true }) filter?: PublicationFilterInput,
-  ): Promise<PublicationType[]> {
-    return this.publicationService.findAll(filter);
+    @Args('pagination', { nullable: true }) pagination?: PaginationInput,
+  ): Promise<PublicationPaginatedResponse> {
+    const { take, skip } = pagination || {};
+
+    const { items, total } = await this.publicationService.findAll(
+      filter,
+      skip,
+      take,
+    );
+
+    const hasMore = (skip || 0) + items.length < total;
+
+    return {
+      items,
+      meta: {
+        total,
+        hasMore,
+      },
+    };
   }
 }

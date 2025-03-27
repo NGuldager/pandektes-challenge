@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID, InputType } from '@nestjs/graphql';
+import { PaginationMeta } from '../common/pagination.types';
 
 @ObjectType()
 export class DocumentType {
@@ -97,4 +98,13 @@ export class PublicationFilterInput {
 
   @Field(() => StringFilterInput, { nullable: true })
   body?: StringFilterInput;
+}
+
+@ObjectType()
+export class PublicationPaginatedResponse {
+  @Field(() => [PublicationType])
+  items: PublicationType[];
+
+  @Field(() => PaginationMeta)
+  meta: PaginationMeta;
 }

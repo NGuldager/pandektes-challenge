@@ -17,19 +17,31 @@ export class PublicationService {
 
   constructor(private prisma: PrismaService) {}
 
-  async findAll(filter?: PublicationFilterInput): Promise<PublicationModel[]> {
+  async findAll(
+    filter?: PublicationFilterInput,
+    skip?: number,
+    take?: number,
+  ): Promise<{ items: PublicationModel[]; total: number }> {
     const where = filter ? formatPublicationFilter(filter) : undefined;
 
-    const publications = await this.prisma.publication.findMany({
-      where,
-      include: {
-        attachments: true,
-        documents: true,
-        links: true,
-      },
-    });
+    const [publications, total] = await Promise.all([
+      this.prisma.publication.findMany({
+        where,
+        include: {
+          attachments: true,
+          documents: true,
+          links: true,
+        },
+        skip,
+        take,
+      }),
+      this.prisma.publication.count({ where }),
+    ]);
 
-    return publications.map((pub) => this.mapDatabaseToModel(pub));
+    return {
+      items: publications.map((pub) => this.mapDatabaseToModel(pub)),
+      total,
+    };
   }
 
   async findOne(id: string): Promise<PublicationModel | null> {
