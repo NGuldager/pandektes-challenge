@@ -3,6 +3,8 @@ import { PublicationFilterInput } from './publication.types';
 
 export const formatPublicationFilter = (filter: PublicationFilterInput) => {
   const where: Prisma.PublicationWhereInput = {};
+  let orderBy: Prisma.PublicationOrderByWithRelationInput | undefined =
+    undefined;
 
   // Filter by categories
   if (filter.categories?.contains) {
@@ -54,10 +56,17 @@ export const formatPublicationFilter = (filter: PublicationFilterInput) => {
   // Filter by body
   if (filter.body?.contains) {
     where.body = {
-      contains: filter.body.contains,
+      search: filter.body.contains,
       mode: 'insensitive',
+    };
+    orderBy = {
+      _relevance: {
+        fields: ['body'],
+        search: filter.body.contains,
+        sort: 'desc',
+      },
     };
   }
 
-  return where;
+  return { where, orderBy };
 };

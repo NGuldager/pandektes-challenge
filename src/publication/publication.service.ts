@@ -22,11 +22,12 @@ export class PublicationService {
     skip?: number,
     take?: number,
   ): Promise<{ items: PublicationModel[]; total: number }> {
-    const where = filter ? formatPublicationFilter(filter) : undefined;
+    const { where, orderBy } = filter ? formatPublicationFilter(filter) : {};
 
     const [publications, total] = await Promise.all([
       this.prisma.publication.findMany({
         where,
+        orderBy,
         include: {
           attachments: true,
           documents: true,
