@@ -8,6 +8,8 @@ import {
 } from '@prisma/client';
 import { Publication as PublicationModel } from './publication.model';
 import { tryCatch } from 'src/utils/try-catch';
+import { PublicationFilterInput } from './publication.types';
+import { formatPublicationFilter } from './publication.helpers';
 
 @Injectable()
 export class PublicationService {
@@ -15,8 +17,11 @@ export class PublicationService {
 
   constructor(private prisma: PrismaService) {}
 
-  async findAll(): Promise<PublicationModel[]> {
+  async findAll(filter?: PublicationFilterInput): Promise<PublicationModel[]> {
+    const where = filter ? formatPublicationFilter(filter) : undefined;
+
     const publications = await this.prisma.publication.findMany({
+      where,
       include: {
         attachments: true,
         documents: true,

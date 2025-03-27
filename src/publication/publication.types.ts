@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { ObjectType, Field, ID, InputType } from '@nestjs/graphql';
 
 @ObjectType()
 export class DocumentType {
@@ -49,4 +49,52 @@ export class PublicationType {
 
   @Field(() => [LinkType], { nullable: true })
   links: LinkType[] | null;
+}
+
+@InputType()
+export class StringArrayFilterInput {
+  @Field(() => [String], { nullable: true })
+  contains?: string[];
+}
+
+@InputType()
+export class StringFilterInput {
+  @Field(() => String, { nullable: true })
+  contains?: string;
+}
+
+@InputType()
+export class DateFilterInput {
+  @Field(() => String, { nullable: true })
+  equals?: string;
+
+  @Field(() => String, { nullable: true })
+  gt?: string;
+
+  @Field(() => String, { nullable: true })
+  gte?: string;
+
+  @Field(() => String, { nullable: true })
+  lt?: string;
+
+  @Field(() => String, { nullable: true })
+  lte?: string;
+}
+
+@InputType()
+export class PublicationFilterInput {
+  @Field(() => StringArrayFilterInput, { nullable: true })
+  categories?: StringArrayFilterInput;
+
+  @Field(() => StringArrayFilterInput, { nullable: true })
+  jnr?: StringArrayFilterInput;
+
+  @Field(() => StringFilterInput, { nullable: true })
+  title?: StringFilterInput;
+
+  @Field(() => DateFilterInput, { nullable: true })
+  published_date?: DateFilterInput;
+
+  @Field(() => StringFilterInput, { nullable: true })
+  body?: StringFilterInput;
 }
